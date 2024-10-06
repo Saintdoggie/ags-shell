@@ -1,8 +1,6 @@
 # Ags config
 
-## Run
+## to run
 ```bash
-bun install
-# run
-bun run ags
+nix run github:Saintdoggie/ags-shell
 ```
