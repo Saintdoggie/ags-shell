@@ -13,18 +13,31 @@
   {
     packages.${system}.default = stdenv.mkDerivation {
       inherit name;
-      src = ./src;
+      src = ./.;
 
       buildInputs = [
         ags
         bun
+        typescript
       ];
+      
 
       buildPhase = ''
-        ${bun}/bin/bun build $src/index.ts \
-        --outfile main.js \
+        ${bun}/bin/bun build $src/src/index.ts \
+        --outfile config.js \
         --external "resource://*" \
-        --external "gi://*"
+        --external "gi://*" \
+        --external "ags"
+
+        # Retrieve typescript types, then check types with tsc
+
+        cp -r ${ags}/share/com.github.Aylur.ags/types/* .
+        cp $src/tsconfig.json .
+        cp $src/src/css/css.scss .
+
+        cp ${sassc}/bin/sassc .
+
+        # tsc -p tsconfig.json
 
         touch -f run
 
@@ -34,9 +47,14 @@
       installPhase = ''
         mkdir -p $out
         mkdir -p $out/bin
+        mkdir -p $out/css
 
-        cp -f main.js $out/config.js
+        cp -f config.js $out/config.js
+
         cp -f run $out/bin/ags-shell
+        cp -f sassc $out/bin/sassc
+
+        cp -f css.scss $out/css/css.scss
 
         echo "${ags}/bin/ags -c $out/config.js" >> $out/bin/ags-shell
 
